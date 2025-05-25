@@ -9,13 +9,43 @@
         state: present
         update_cache: yes
 
-- name: Paigalda andmebaasiserverid kui puuduvad
+- name: Lisa MySQL ametlik repo ja paigalda MySQL server DebianServeris
   hosts: dbservers
   become: yes
   tasks:
-    - name: Kontrolli ja paigalda MySQL server
+
+    - name: Paigalda vajalikud paketid https repo jaoks
+      apt:
+        name:
+          - wget
+          - gnupg
+        state: present
+        update_cache: yes
+
+    - name: Lisa MySQL GPG võti
+      ansible.builtin.apt_key:
+        url: https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+        state: present
+
+    - name: Lisa MySQL repo faili
+      ansible.builtin.apt_repository:
+        repo: 'deb http://repo.mysql.com/apt/debian/ {{ ansible_distribution_release }} mysql-8.0'
+        state: present
+        filename: mysql.list
+
+    - name: Uuenda apt vahemälu
+      apt:
+        update_cache: yes
+
+    - name: Paigalda MySQL server
       apt:
         name: mysql-server
         state: present
-        update_cache: yes
+
+    - name: Veendu, et MySQL on käivitatud ja lubatud
+      systemd:
+        name: mysql
+        state: started
+        enabled: yes
+
 
