@@ -1,0 +1,21 @@
+---
+- name: Paigalda veebiserverid kui puuduvad
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Kontrolli ja paigalda Apache2
+      apt:
+        name: apache2
+        state: present
+        update_cache: yes
+
+- name: Paigalda andmebaasiserverid kui puuduvad
+  hosts: dbservers
+  become: yes
+  tasks:
+    - name: Kontrolli ja paigalda MySQL server
+      apt:
+        name: mysql-server
+        state: present
+        update_cache: yes
+
